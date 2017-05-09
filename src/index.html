@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<!--
+	weflnote <%= @version %>
+    Copyright 2017 yujakudo
+    License : MIT License
+-->
+<head>
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= @title %></title>
+<% include @scripts %>
+</head>
+<body>
+    <div id="app-header">
+        <script type="text/x-yjd-loader">{
+            "src": "./app-nav.html",
+            "type": "text/html",
+            "options": {  "filter": "translate, menu"}
+        }</script>
+    </div>
+    <div id="app-content">
+    </div>
+    <div id="app-footer">
+        <div id="app-status"></div>
+    </div>
+</body>
+</html>

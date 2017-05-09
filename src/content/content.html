@@ -1,0 +1,65 @@
+<div class="book">
+    <script type="text/x-weflnote-book">{
+        "template":   {
+			"css":		"./content.css",
+			"editable":	"div.header, div.footer, section.html, div.widgets-desc, grid-stack-item-content",
+			"tabTemplate": "<li class=\"tab\"></li>",
+			"editModeSwitch": "li.edit-mode-switch",
+			"page": {
+				"page": "<div class=\"page\"><section class=\"html\"><h2>New page</h2></section></div>"
+			},
+			"section": {
+				"normal": "<section class=\"html\"><h3>New section</h3></section>",
+				"widgets": 	"<section class=\"widgets\"><div class=\"widgets-desc\"><h3>New section</h3></div>" +
+							"<div class=\"grid-stack\">" +
+							"<div class=\"grid-stack-item\" data-gs-x=\"0\" data-gs-y=\"0\" data-gs-width=\"3\" data-gs-height=\"2\">" +
+							"<div class=\"grid-stack-item-content\"><h4>Widget 1</h4></div>" +
+							"</div></div></section>"
+			}
+		},
+        "options": {}
+    }</script>
+	<style></style>
+	<div class="book-tabs">
+		<ul class="controls">
+			<li class="edit-mode-switch">edit</li>
+		</ul>
+		<ul class="tabs-list">
+		</ul>
+		<ul class="tabs-buttons when-edit">
+			<li class="cmd-page-add">add</li>
+		</ul>
+	</div>
+	<div class="book-body">
+		<div class="header" class="html">
+			<h1>Title</h1>
+			<p>Discripsion of this notebook.</p>
+		</div>
+		<div class="pages">
+			<div class="page">
+				<section class="html">
+					<h2>Page 1</h2>
+					<p>Discripsions of this page.</p>
+				</section>
+				<section class="widgets">
+					<div class="widgets-desc">
+						<h3>Section 1</h3>
+					</div>
+					<div class="grid-stack">
+						<div class="grid-stack-item"
+							data-gs-x="0" data-gs-y="0"
+							data-gs-width="3" data-gs-height="2">
+								<div class="grid-stack-item-content">
+									<h4>Widget 1</h4>
+								</div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+		<div class="footer" class="html">
+			<address>Copyright 2017 yujakudo</address>
+		</secton>
+		</div>
+	</div>
+</div>

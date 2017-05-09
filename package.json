@@ -1,0 +1,40 @@
+{
+  "name": "weflnote",
+  "version": "0.1.0",
+  "description": "Flexible WISIWIG HTML notebook",
+  "main": "dist/index.html",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "grunt": "^1.0.1",
+    "grunt-ect": "^0.1.2",
+    "grunt-contrib-clean": "^1.1.0"
+  },
+  "devDependencies": {
+    "adm-zip": "^0.4.7",
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^2.3.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-ect": "^0.1.2",
+    "grunt-sass": "^2.0.0",
+    "request": "^2.81.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yujakudo/weflnote.git"
+  },
+  "author": "yujakudo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yujakudo/weflnote/issues"
+  },
+  "homepage": "https://github.com/yujakudo/weflnote#readme"
+}

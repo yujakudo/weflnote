@@ -1,0 +1,31 @@
+/**
+ * @copyright  2017 yujakudo
+ * @license    MIT License
+ * @fileoverview base class of widget
+ * @since  2017.05.03  initial coding.
+ */
+
+.yjd-wdg-hidden {
+	display: none;
+}
+.yjd-wdg-disabled {
+	pointer-events: none;
+	color: var(--yjd-wdg-text-inactive);
+}
+
+.yjd-wdg {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0; 
+	background-color: var(--yjd-wdg-base-color);
+	border-top: var(--yjd-wdg-thick) solid var(--yjd-wdg-lightside);
+	border-left: var(--yjd-wdg-thick) solid var(--yjd-wdg-lightside);
+	border-bottom: var(--yjd-wdg-thick) solid var(--yjd-wdg-darkside);
+	border-right: var(--yjd-wdg-thick) solid var(--yjd-wdg-darkside);
+	color: var(--yjd-wdg-text);
+	text-shadow: 0 0 2px var(--yjd-wdg-text-shadow);
+	font-family: var(--yjd-wdg-font-family);
+	font-size: var(--yjd-wdg-font-size);
+	line-height: var(--yjd-wdg-line-height);
+}
+
+

@@ -1,0 +1,55 @@
+/**
+ * @copyright  2017 yujakudo
+ * @license    MIT License
+ * @fileoverview base class of widget
+ * @since  2017.05.03  initial coding.
+ */
+
+ul.yjd-wdg-menu-bar {
+	list-style-type:none;
+	zoom: 1;
+}
+ul.yjd-wdg-menu-bar:after {
+    clear: both;
+    content: "";
+    display: block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+}
+
+ul.yjd-wdg-menu-popup, ul.yjd-wdg-submenu {
+	list-style-type: none;
+	position: absolute;
+	padding: 0.2em 0;
+}
+ul.yjd-wdg-menu-bar li, ul.yjd-wdg-menu-popup li {
+	position: relative;
+	margin: 0 0 0 0;
+	padding: 0 0.8em 0 0;
+	float:left;
+	display: block;
+	text-align: left;
+	min-width: 4em;			
+	cursor: default;
+}
+ul.yjd-wdg-menu-bar>li {
+	float:left;
+}
+ul.yjd-wdg-menu-popup>li, ul.yjd-wdg-submenu>li {
+	text-indent: 0.8em;
+	padding-bottom: 0.1em;
+}
+ul.yjd-wdg-menu-bar li:hover, ul.yjd-wdg-menu-popup li:hover {
+	background-color: var(--yjd-wdg-base-hover);
+}
+hr {
+	margin: 0.4em 0 0.4em 0.8em;
+	border-top: var(--yjd-wdg-thick) solid var(--yjd-wdg-darkside);
+	border-bottom: var(--yjd-wdg-thick) solid var(--yjd-wdg-lightside);
+	border-left: none;
+	border-right: none;
+	pointer-events: none;
+}
+

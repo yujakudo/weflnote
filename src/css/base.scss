@@ -1,0 +1,75 @@
+:root {
+    /*   base   */
+    --base-color:    #fff;
+    --back-color:    #c0c0c0;
+    --back-color-dark:    #b0b0b0;
+    --back-color-light:    #d0d0d0;
+    --back-color-high-light: #e0e0e0;
+    --base-hover-color:    #d0d0d0;
+    --base-font-color:    #202020;
+
+    --base-font-size:    11pt;
+    --base-line-height:  13.5pt;
+    --base-font-family: "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro",
+        "Meiryo UI", "メイリオ", Meiryo, "ＭＳ Ｐゴシック", sans-serif;
+    --base-font-family: sans-serif;
+
+    /*  grid: ;*/
+    --grid-border-color:     #888;
+
+    /*  nav    */
+    --nav-base-color:    #448;
+    --nav-hover-color:   #66b;
+    --nav-base-light:    #559;
+    --nav-base-dark:     #336;
+    --nav-font-active-color: #eef;
+    --nav-font-inactive-color: #88c;
+
+    --nav-min-width: 6rem;
+    --nav-height:    22px;
+
+    --status-height:  21px;
+}
+
+/*  basics */
+/* {
+    margin:0;
+    border: 0 none;
+    text-decoration: none;
+}
+*/
+html,body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: var( --base-font-family);
+    background-color: var( --back-color);
+    font-size: var( --base-font-size);
+    color: var( --base-font-color);
+    line-height: var( --base-line-height);
+}
+
+@mixin clearfix() {
+    zoom: 1;
+}
+@mixin clearfix-after() {
+    clear: both;
+    content: "";
+    display: block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+}
+
+.clearfix {
+    @include clearfix();
+}
+.clearfix:after {
+    @include clearfix-after();
+}
+
+.hidden {
+    display: none;
+}

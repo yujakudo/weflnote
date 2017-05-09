@@ -1,0 +1,66 @@
+@import "base.scss";
+@import "nav.scss";
+@import "tabs.scss";
+
+@mixin app-transition($item) {
+	transition-property: $item;
+	transition-duration: 200ms;
+	transition-timing-function:linear;
+}
+
+#app-header{
+	position: fixed;
+	top: calc( -1px - var(--nav-height));
+	z-index: 17000;
+	width: 100%;
+	background-color: var( --nav-base-color);
+	color: var( --nav-font-active-color);
+	border-bottom: 1px solid var( --nav-base-dark);
+	height: calc( var(--nav-height) - 1px);
+    @include app-transition(top);
+}
+.app-edit-mode #app-header {
+	top: 0;
+}
+
+#app-content {
+	padding-top: 1px;
+	min-height: calc(100% - 1px);
+	background-color: var(--back-color);
+    @include app-transition(#{padding-top, min-height});
+}
+.app-edit-mode #app-content {
+	padding-top: var(--nav-height);
+	min-height: calc(100% - var(--nav-height));
+}
+#app-status {
+	position: fixed;
+	bottom: 0;
+	z-index: 17000;
+	width: 100%;
+	height: calc(var(--status-height) - 1px);
+	background-color: var(--nav-base-color);
+	border-top: 1px solid var(--nav-base-light);
+    color: var(--nav-font-active-color);
+	padding-left: 1rem;
+}
+.when-edit {
+	display: none;
+}
+.edit-mode .when-edit {
+	display: initial;
+}
+
+input.hot-edit, textarea.hot-edit {
+	margin: 0;
+	padding: 0;
+	background-color: transparent;
+	width: 100%;
+	border: 0px none;
+	color: inherit;
+	font: inherit;
+	text-align: inherit;
+	text-decoration: inherit;
+	text-shadow: inherit;
+	line-height: inherit;
+}
