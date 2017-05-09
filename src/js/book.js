@@ -18,7 +18,8 @@ WN.Book = function(app, url, book_id) {
 	this.curPage = null;
     this.editMode = false;
     this.wdg = {};
-    var data = this.atm.scriptData('script[type="text/x-weflnote-book"]');
+    this.editEvents = [];
+    var data = this.atm.scriptData('text/x-weflnote-book');
     if(!data) {
         var msg = __('book data does not exist.');
         if(data===false) msg = __('book data is corrupted.');
@@ -40,7 +41,7 @@ WN.Book = function(app, url, book_id) {
 WN.Book.prototype.def_data = {
     template:   {
         css:    null,
-        editable:   "div.header, div.footer, section",
+        editable:   "div.wn-html",
         indexTag:   'ul.tabs-list',
 	    indexTemplate: "<li class=\"tab\"></li>",
 		editModeSwitch: null,
@@ -77,7 +78,7 @@ WN.Book.prototype.bind = function() {
  * argument has {yjd.atm} page object. if return false, exit loop.
  */
 WN.Book.prototype.eachPage = function(func) {
-	yjd.atms(this.template.pageTag, this.atm).each(func);
+	yjd.atms(this.template.pageTag, this.atm).each(this, func);
 };
 
 /**
@@ -86,7 +87,7 @@ WN.Book.prototype.eachPage = function(func) {
  * argument has {yjd.atm} page object. if return false, exit loop.
  */
 WN.Book.prototype.eachSection = function(func) {
-	yjd.atms(this.template.sectionTag, this.atm).each(func);
+	yjd.atms(this.template.sectionTag, this.atm).each(this, func);
 };
 
 /**
@@ -176,94 +177,56 @@ WN.Book.prototype.selectPage = function(n_page) {
  */
 WN.Book.prototype.editmode = function(b_edit) {
     this.editMode = b_edit;
+    var book = this;
     var i = 0;
+    var editWidgets = null;
     if(b_edit) {
+        CKEDITOR.disableAutoInline = true;
         this.atm.addClass('edit-mode');
-        yjd.atms(this.template.editable, this.atm).each(function(atm){
+        editWidgets = yjd.atm('<div class="edit-widgets"></div>');
+        editWidgets.style('position', 'relative');
+        this.atm.append(editWidgets);
+        this.sectionMenu = new WN.SectionMenu(this, editWidgets);
+        yjd.atms(this.template.editable, this.atm).each(this, function(atm){
             atm.attr('contenteditable', true);
-            CKEDITOR.inline( atm.elm, {startupFocus: false});
+            var instance = CKEDITOR.inline( atm.elm, {startupFocus: false});
+            instance.on('focus', ckedOn);
+            instance.on('blur', ckedOff);
         });
         this.eachSection(function(atm){
-            atm.bind('mouseenter', this.showSectionMenu);
-            atm.bind('mouseleave', this.hideSectionMenu);
+            this.editEvents.push(atm.bind('mouseenter', this, mouseenter));
+            this.editEvents.push(atm.bind('mouseleave', this, mouseleave));
         });
     } else {
-        this.atm.removeClass('edit-mode');
-        for(var prop in CKEDITOR.instances) {
-            CKEDITOR.instances[prop].destroy();
-        }
-        yjd.atms(this.template.editable, this.atm).each(function(atm){
+        yjd.atms(this.template.editable, this.atm).each(this, function(atm){
             atm.removeAttr('contenteditable');
         });
-        this.eachSection(function(atm){
-            atm.unbind('mouseenter', this.showSectionMenu);
-            atm.unbind('mouseleave', this.hideSectionMenu);
-        });
+        for(i in CKEDITOR.instances) {
+            CKEDITOR.instances[i].destroy();
+        }
+        while(this.editEvents.length) {
+            yjd.atm.unbind(this.editEvents.pop());
+        }
+        yjd.atm('div.edit-widgets', this.atm).remove();
+        this.atm.removeClass('edit-mode');
+        this.sectionMenu.destroy();
+        this.sectionMenu = null;
         this.setTitles();
     }
-    var menu = null;
-    //  end of function
-};
-
-WN.Book.prototype.showSectionMenu = function(event, atmSect) {
-    var menu = this.sectionMenu(atmSect);
-    atmSect.affter(menu);
-};
-
-WN.Book.prototype.hideSectionMenu = function(event, atmSect) {
-    this.sectionMenu().remove();
-};
-
-/**
- * get section popup menu.
- * @param {yjd.atm} atmSect object of current section.
- */
-WN.Book.prototype.sectionMenu = function(atmSect) {
-    if(this.wdg.sectionMenu) {
-        if(atmSect) this.wdg.sectionMenu.setOption(args, {0: atmSect});
-        return this.wdg.sectionMenu;
+    return;
+    //
+    function mouseenter(event, atm) {
+        book.sectionMenu.enterSection(event, atm);
     }
-    var structure = [];
-    var part;
-    newsection(false, 'before', [
-        __('Insert new %% section before'),
-        __('Insert new section before')
-    ]);
-    structure.push({label:'-'});
-    newsection(true, 'after', [
-        __('Insert new %% section after'),
-        __('Insert new section after')
-    ]);
-    structure.push({label:'-'});
-    structure.moveup = {
-        label: __('move up'), callback: this.moveSection,
-        args: [ null, false ]
-    };
-    structure.movedown = {
-        label: __('move down'), callback: this.moveSection,
-        args: [ null, true ]
-    };
-    structure.push({label:'-'});
-    structure.movedown = {
-        label: __('delete section'), callback: this.deleteSection,
-        args: [ null ]
-    };
-    this.wdg.sectionMenu = new yjd.wdg.Menu(structure);
-    if(atmSect) this.wdg.sectionMenu.setOption(args, {0: atmSect});
-    return this.wdg.sectionMenu;
-
-    function newsection(b_after, label, msgs) {
-        for(var tpl_name in this.template.section) {
-            var part = {};
-            part.label = msgs[0].fill(__(tpl_name));
-            if(this.template.section.length===1) {
-                part.label = msgs[1];
-            }
-            part.callback = this.newSection;
-            part.args = [ null, tpl_name, b_after ];
-            var prop = label+'-'+tpl_name;
-            structure[prop] = part;
-        }
+    function mouseleave(event, atm) {
+        book.sectionMenu.leaveSection(event, atm);
+    }
+    function ckedOn(e) {
+        book.sectionMenu.hide();
+        book.sectionMenu.leaveSection();
+    }
+    function ckedOff(e) {
+//        book.sectionMenu.show();
     }
 };
 

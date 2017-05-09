@@ -5,6 +5,8 @@
  * @since  2017.04.28  initial coding.
  */
 
+WN = {};
+
 /**
  * constructor
  */

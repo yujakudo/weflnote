@@ -24,11 +24,16 @@ ul.yjd-wdg-menu-popup, ul.yjd-wdg-submenu {
 	position: absolute;
 	padding: 0.2em 0;
 }
+ul.yjd-wdg-submenu {
+	display: none;
+}
+li:hover>ul.yjd-wdg-submenu {
+	display: block;
+}
 ul.yjd-wdg-menu-bar li, ul.yjd-wdg-menu-popup li {
 	position: relative;
 	margin: 0 0 0 0;
 	padding: 0 0.8em 0 0;
-	float:left;
 	display: block;
 	text-align: left;
 	min-width: 4em;			

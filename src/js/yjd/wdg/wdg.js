@@ -2,23 +2,40 @@
  * @copyright  2017 yujakudo
  * @license    MIT License
  * @fileoverview base class of widget
+ * depend on yjd.atm
  * @since  2017.05.03  initial coding.
  */
 
 /**
- * generate instance of widget.
- * @param {string} name name of widget
+ * constructor.
  * @param {object} structure structure of widget.
  * @param {object} options options.
+ * @param {object} def_options default of options.
  */
-yjd.wdg = function(name, structure, options) {
-	if( yjd.wdg.list[name]) {
-		return new yjd.wdg.list[name](structure, options);
-	}
-	return false;
+yjd.wdg = function(structure, options, def_options) {
+    this.atm = null;
+    this.structure = structure;
+    this.events = {}; //    event handlers
+    this.options = yjd.extend({}, def_options, options);
+    this.lender();  //  set this.atm in this metod.
 };
 
-yjd.wdg.list = {};
+/**
+ * explicitly release properties
+ */
+yjd.wdg.prototype.destroy = function() {
+    if(this.atm && this.atm) this.atm.remove();
+    this.unbindAll();
+    delete this.events;
+    delete this.structure;
+    delete this.options;
+};
+
+yjd.wdg.prototype.unbindAll = function() {
+    for(var prop in this.events) {
+        yjd.atm.unbind(this.events[prop]);
+    }
+};
 
 /**
  * show widget
@@ -46,14 +63,4 @@ yjd.wdg.prototype.setOption = function(options, value) {
     } else {
         yjd.extend(this.options, options);
     }
-};
-
-/**
- * inherit prototype to constructor
- * @param {string} name name of widget
- * @param {function} constr constructor 
- */
-yjd.wdg.extend = function(name, constr) {
-	yjd.extend(constr.prototype, yjd.wdg.prototype);
-	yjd.wdg.list[name] = constr;
 };

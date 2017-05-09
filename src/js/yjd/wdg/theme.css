@@ -6,12 +6,12 @@
  */
 
 :root {
-	--yjd-wdg-base-color: rgba(40,40,40,0.5);
-	--yjd-wdg-base-hover: rgba(100,100,100,0.5);
-	--yjd-wdg-lightside: rgba(80,80,80,0.5);
-	--yjd-wdg-darkside: rgba(0,0,0,0.5);
+	--yjd-wdg-base-color: rgba(40,40,40,0.8);
+	--yjd-wdg-base-hover: rgba(100,100,100,08);
+	--yjd-wdg-lightside: rgba(120,120,120,0.8);
+	--yjd-wdg-darkside: rgba(0,0,0,0.8);
 	--yjd-wdg-thick: 1px;
-	--yjd-wdg-text: rgba(200,200,200,0.9);
+	--yjd-wdg-text: rgba(240,240,240,0.9);
 	--yjd-wdg-text-inactive: rgba(100,100,100,0.9);
 	--yjd-wdg-text-shadow: rgba(40,40,40,0.9);
 	--yjd-wdg-font-family: sans-serif;

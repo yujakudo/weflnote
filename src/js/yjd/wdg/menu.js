@@ -16,23 +16,44 @@
  * @param {object} options options.
  */
 yjd.wdg.Menu = function(structure, options) {
-    this.atm = null;
-    this.structure = structure;
-    this.options = yjd.extend({}, yjd.wdg.Menu.def_options, options);
-    this.lender();
+    yjd.wdg.Menu.parent.constructor.call(this, structure, options, {
+        type:       'popup',    //  type of menu
+        class:      null,   //  class to be added tag
+        autoClose:  false,   //  close when clicked
+        this:       null,    //  object set to be 'this' of callback. default is popup instance
+        args:  {}           //  arguments to overwrite
+    });
+    this.onmouse = false;
 };
 
-yjd.wdg.extend('menu', yjd.wdg.Menu);
+yjd.extendClass(yjd.wdg.Menu, yjd.wdg);
 
 /**
- * default options values
+ * bind
+ * @param {boolean} b_bind bind if true, otherwise unbind
  */
-yjd.wdg.Menu.def_options = {
-    type:       'popup',    //  type of menu
-    class:      null,   //  class to be added tag
-    autoClose:  false,   //  close when clicked
-    this:       null,    //  object set to be 'this' of callback. default is popup instance
-    args:  {}           //  arguments to overwrite
+yjd.wdg.Menu.prototype.bind = function() {
+    this.events.mouseenter = this.atm.bind('mouseenter', this, mouseenter);
+    this.events.mouseleave = this.atm.bind('mouseleave', this, mouseleave);
+    this.events.click = this.atm.bind('click', this, onclick, true);
+    //  end
+    function mouseenter(event, atm) {
+        this.mouseon = true;
+    }
+    function mouseleave(event, atm) {
+        this.mouseon = false;
+        if(this.options.autoClose) this.destroy();
+    }
+    function onclick(event, atm) {
+        event.stopPropagation();
+        if(event.target.tagName.toLowerCase()!=='li') return;
+        var idx = yjd.atm(event.target).data('idx');
+        var item_data = this.structure[idx];
+        if(item_data.disable) return;
+        var args = yjd.extend(item_data.args, this.options.args);
+        item_data.callback.apply(this.options.this, args);
+        if(this.options.autoClose) this.destroy();
+    }
 };
 
 /**
@@ -63,8 +84,8 @@ yjd.wdg.Menu.prototype.setArgs = function(idx, args) {
  * lender
  */
 yjd.wdg.Menu.prototype.lender = function() {
-    this.atm = yjd.atm('<ul class="yjd-wdg yjd-wdg-menu"></ul>');
-    this.atm.addClass('yjd-wdg-'+this.options.type);
+    this.atm = yjd.atm('<ul class="yjd-wdg"></ul>');
+    this.atm.addClass('yjd-wdg-menu-'+this.options.type);
     if(this.options.class) this.atm.addClass(this.options.class);
     appendItems(this.structure, this.atm);
     return;
@@ -78,35 +99,17 @@ yjd.wdg.Menu.prototype.lender = function() {
             if(data.label==='-') {
                 item.addClass('yjd-wdg-disabled');
                 item.html('<hr/>');
+                item.attr('title', '');
                 continue;
             }
             item.text(data.label);
+            item.attr('title', data.label);
             if(data.disabled) item.addClass('yjd-wdg-disabled');
-            if(data.callback) item.bind('click', this, onclick);
             if(data.submenu) {
-                item.bind('mouseenter', this, onmouseenter);
-                item.bind('mouseleave', this, onmouseleave);
-                var atmSubmenu = yjd.atm('<ul class="yjd-wdg-submenu yjd-wdg-hidden"></ul>');
+                var atmSubmenu = yjd.atm('<ul class="yjd-wdg yjd-wdg-submenu yjd-wdg-hidden"></ul>');
                 appendItems(data.submenu, atmSubmenu);
                 item.append(atmSubmenu);
             }
         }
-    }
-    function onclick(event, atm){
-        if(atm.hasClass(yjd-wdg-disabled)) return;
-        var idx = atm.data('idx');
-        var o_this = this.options.this || this;
-        var args = yjd.extend([], this.structure[idx].args, this.options.args);
-        this.structure[idx].callback.apply(o_this, args);
-        if(this.options.autoClose) {
-            this.atm.remove();
-        }
-    }
-    function onmouseenter(event, atm){
-        if(atm.hasClass(yjd-wdg-disabled)) return;
-        atm.findOne('ul').removeClass('yjd-wdg-hidden');
-    }
-    function onmouseleave(event, atm){
-        atm.findOne('ul').addClass('yjd-wdg-hidden');
     }
 };

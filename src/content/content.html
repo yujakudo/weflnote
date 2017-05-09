@@ -2,22 +2,33 @@
     <script type="text/x-weflnote-book">{
         "template":   {
 			"css":		"./content.css",
-			"editable":	"div.header, div.footer, section.html, div.widgets-desc, grid-stack-item-content",
-			"tabTemplate": "<li class=\"tab\"></li>",
+			"editable":	".wn-html",
+			"tabTemplate": "<li></li>",
 			"editModeSwitch": "li.edit-mode-switch",
+			"pageTag":	"article.page",
 			"page": {
-				"page": "<div class=\"page\"><section class=\"html\"><h2>New page</h2></section></div>"
+				"page": [
+					"<article class=\"page\"><section class=\"html\">",
+					"<h2>New page</h2></section></article>"
+				]
 			},
 			"section": {
-				"normal": "<section class=\"html\"><h3>New section</h3></section>",
-				"widgets": 	"<section class=\"widgets\"><div class=\"widgets-desc\"><h3>New section</h3></div>" +
-							"<div class=\"grid-stack\">" +
-							"<div class=\"grid-stack-item\" data-gs-x=\"0\" data-gs-y=\"0\" data-gs-width=\"3\" data-gs-height=\"2\">" +
-							"<div class=\"grid-stack-item-content\"><h4>Widget 1</h4></div>" +
-							"</div></div></section>"
+				"normal": [
+					"<section class=\"html-section wn-html\">",
+					"<h3>New section</h3></section>"
+				],
+				"widgets": [
+					"<section class=\"widgets-section\"><div class=\"wn-html\"><h3>New section</h3></div>",
+					"<div class=\"grid-stack\">",
+					"<div class=\"grid-stack-item\" data-gs-x=\"0\" data-gs-y=\"0\" data-gs-width=\"3\" data-gs-height=\"2\">",
+					"<div class=\"grid-stack-item-content\"><h4>Widget</h4></div>",
+					"</div></div></section>"
+				]
 			}
 		},
-        "options": {}
+        "options": {
+			"envelope": "./envelope.html"
+		}
     }</script>
 	<style></style>
 	<div class="book-tabs">
@@ -31,33 +42,33 @@
 		</ul>
 	</div>
 	<div class="book-body">
-		<div class="header" class="html">
+		<div class="header wn-html">
 			<h1>Title</h1>
 			<p>Discripsion of this notebook.</p>
 		</div>
 		<div class="pages">
-			<div class="page">
-				<section class="html">
+			<article class="page">
+				<section class="html-section wn-html">
 					<h2>Page 1</h2>
 					<p>Discripsions of this page.</p>
 				</section>
-				<section class="widgets">
-					<div class="widgets-desc">
+				<section class="widgets-section">
+					<div class="wn-html">
 						<h3>Section 1</h3>
 					</div>
 					<div class="grid-stack">
 						<div class="grid-stack-item"
 							data-gs-x="0" data-gs-y="0"
 							data-gs-width="3" data-gs-height="2">
-								<div class="grid-stack-item-content">
+								<div class="grid-stack-item-content wn-html">
 									<h4>Widget 1</h4>
 								</div>
 						</div>
 					</div>
 				</section>
-			</div>
+			</article>
 		</div>
-		<div class="footer" class="html">
+		<div class="footer wn-html">
 			<address>Copyright 2017 yujakudo</address>
 		</secton>
 		</div>

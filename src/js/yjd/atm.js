@@ -2,103 +2,9 @@
  * @copyright  2017 yujakudo
  * @license    MIT License
  * @fileoverview jQuery like class and some tools for DOM access.
+ * depend on base.js
  * @since  2017.04.17  initial coding.
  */
-
-/**
- * copy properties from objects to subject.
- * this can take multiple arguments.
- * @param {object} obj source object.
- * @return this
- */
-yjd.extend = function(subject, obj) {
-    for(var i=1; i<arguments.length; i++) {
-        obj = arguments[i];
-        if(typeof obj !=='object') continue;
-        for( var prop in obj) {
-            if(obj[prop]===null || obj[prop]===undefined) {
-                subject[prop] = obj[prop];
-            } else if(typeof obj[prop] === 'object') {
-                if(typeof subject[prop] !== 'object') subject[prop] = {};
-                yjd.extend( subject[prop], obj[prop]);
-            } else {
-                subject[prop] = obj[prop];
-            }
-        }
-    }
-    return subject;
-};
-
-//  scroll to an Element
-yjd.scrollTo = function (elm, container) {
-    if(container===undefined) container = window;
-    var rect = elm.getBoundingClientRect();
-    var x = rect.left + container.pageXOffset + (rect.width - container.innerWidth)/2;
-    var y = rect.top + container.pageYOffset + (rect.height - container.innerHeight)/2;
-    container.scrollTo(x, y);
-};
-
-/** get string of style.
- * @param {object} style object of style info
- * @return {string} style sring
- */
-yjd.getStyleText = function (obj) {
-    var s_style = '';
-    for(var prop in obj) {
-        if(typeof obj[prop] ==='string' || typeof obj[prop] ==='number')
-            s_style += prop+':'+obj[prop]+';';
-    }
-    return s_style;
-};
-
-/** get object of style.
- * @param {string} style string of style info
- * @return {object} style object
- */
-yjd.getStyleObj = function(str) {
-    var obj = {};
-    var rules = str.split(';');
-    for(var i in rules) {
-        if(rules[i].match(/^\s*([\w-]+)\s*:\s*(.+)$/)) {
-            obj[RegExp.$1] = RegExp.$2.trim;
-        }
-    }
-    return obj;
-};
-
-/**
- * get absolute URL
- * if baseurl is not spesified, document url is reffered.
- * @param {string} url URL
- * @param {string} baseurl URL. optional.
- * @return {string} absolute URL
- */
-yjd.getAbsoluteUrl = function(url, baseurl) {
-    if(url.match('://'))    return url;
-    if(baseurl===undefined) {
-        var anchor = document.createElement('a');
-        anchor.href = url;
-        return anchor.href;
-    }
-    while(url.substr(0,2)==='./')   url = url.substr(2);
-    baseurl = baseurl.substr(0, baseurl.lastIndexOf('/')+1);
-    while(url.substr(0,3)==='../') {
-        url = url.substr(3);
-        baseurl = baseurl.substr(0, baseurl.length-1);
-        baseurl = baseurl.substr(0, baseurl.lastIndexOf('/')+1);
-    }
-    return baseurl+url;
-};
-
-/**
- * escape css special charactors
- */
-yjd.cssEscape = function(str) {
-    return str;
-//    return str.replace(/([\.\:\(\)\{\}\[\]\\])/g, function(c){
-//        return '\\'+c;
-//    });
-};
 
 /**
  * class yjd.atm. tiny class like jQuery.
@@ -121,14 +27,12 @@ yjd.atm = function(q, context) {
     //  resolve q
     switch(typeof q) {
         case 'string':
-            if(q==='fragment') {
+            if(q==='!fragment') {
                 this.elm = document.createDocumentFragment();
             } else if(q.match(/^\s*<([\s\S]+)>\s*$/)) {
-                var node = document.createElement('div');
-                node.innerHTML = q;
-                this.elm = node.children[0];
+                this.elm = yjd.createElementFromStr(q);
             } else {
-                this.elm = context.querySelector(yjd.cssEscape(q));
+                this.elm = context.querySelector(yjd.atm.cssEscape(q));
             }
             break;
         case 'number':
@@ -144,6 +48,8 @@ yjd.atm = function(q, context) {
                 this.elm = q;
             } else if(q instanceof yjd.atm) {
                 this.elm = q.elm;
+            } else if(q instanceof Array) {
+                this.elm = yjd.createElementFromStr(q);
             }
             break;
     } 
@@ -174,7 +80,7 @@ yjd.atms = function(q, context) {
     }
     context = yjd.atm.contextElm(context);
     if(typeof q==='string') {
-        this.elms = context.querySelectorAll(yjd.cssEscape(q));
+        this.elms = context.querySelectorAll(yjd.atm.cssEscape(q));
     } else if(typeof q==='object') {
         if(q instanceof NodeList) {
             this.elms = q;
@@ -261,21 +167,43 @@ yjd.atm.prototype.data = function(key, val) {
 
 //  class
 yjd.atm.prototype.addClass = function(name) {
-    this.elm.classList.add(name);
+    var names = name.split(' ');
+    for(var i in names) {
+        name = names[i];
+        if(name) this.elm.classList.add(name);
+    }
     return this;
 };
 yjd.atm.prototype.removeClass = function(name) {
-    this.elm.classList.remove(name);
+    var names = name.split(' ');
+    for(var i in names) {
+        name = names[i];
+        if(name) this.elm.classList.remove(name);
+    }
     return this;
 };
 yjd.atm.prototype.toggleClass = function(name) {
-    this.elm.classList.toggle(name);
+    var names = name.split(' ');
+    for(var i in names) {
+        name = names[i];
+        if(name) this.elm.classList.toggle(name);
+    }
     return this;
 };
 yjd.atm.prototype.hasClass = function(name) {
-    return this.elm.classList.contains(name);
+    var names = name.split(' ');
+    for(var i in names) {
+        name = names[i];
+        if(name && !this.elm.classList.contains(name)) {
+            return false;
+        }
+    }
+    return true;
 };
 yjd.atm.prototype.class = function(value) {
+    if(value===undefined) {
+        return this.elm.getAttribute('class');
+    }
     var classes = value;
     if(typeof value==='object') {
         classes = '';
@@ -289,30 +217,23 @@ yjd.atm.prototype.class = function(value) {
 
 //  style
 yjd.atm.prototype.style = function(name, value) {
-    var s_style='', o_style='';
-    if(typeof name==='object') {
-        var styles = yjd.getStyleText(name);
+    var s_style='', o_style={};
+    if(typeof name=='object') {
+        var styles = yjd.atm.getStyleText(name);
         this.elm.setAttribute('style', styles);
     } else if(value!==undefined) {
-        s_style = this.elm.getAttribute('style');
-        o_style = yjd.getStyleObj(s_style);
-        o_style[name] = value;
-        s_style = yjd.getStyleText(name);
-        this.elm.setAttribute('style', s_style);
+        name = yjd.atm.hyphen2camel(name);
+        this.elm.style[name] = value;
     } else {
-        s_style = this.elm.getAttribute('style');
-        o_style = yjd.getStyleObj(s_style);
-        return o_style[name];
+        name = yjd.atm.hyphen2camel(name);
+        return this.elm.style[name];
     }
     return this;
 };
 
 yjd.atm.prototype.removeStyle = function(name) {
-    var s_style = this.elm.getAttribute('style');
-    var o_style = yjd.getStyleObj(s_style);
-    delete o_style[name];
-    s_style = yjd.getStyleText(name);
-    this.elm.setAttribute('style', s_style);
+    name = yjd.atm.hyphen2camel(name);
+    this.elm.style[name] = '';
     return this;
 };
 
@@ -334,9 +255,90 @@ yjd.atm.prototype.text = function(value) {
     return this;
 };
 
+/**
+ * get style finaly computed to display.
+ * @param {string} name propaty name
+ */
+yjd.atm.prototype.getStyle = function(name) {
+    var style = window.getComputedStyle(this.elm, null);
+    name = yjd.atm.hyphen2camel(name);
+    return style[name];
+};
+
+/**
+ * width
+ * @param {number} sw 1:with border, 2:expand scroll, other: client
+ * @return {number} width;
+ */
+yjd.atm.prototype.width = function(sw) {
+    if(sw===1) return this.elm.offsetWidth;
+    else if(sw===2) return this.elm.scrollWidth;
+    return this.elm.clientWidth;
+};
+
+/**
+ * width
+ * @param {number} sw 1:with border, 2:expand scroll, other: client
+ * @return {number} width;
+ */
+yjd.atm.prototype.height = function(sw) {
+    if(sw===1) return this.elm.offsetHeight;
+    else if(sw===2) return this.elm.scrollHeight;
+    return this.elm.clientHeight;
+};
+
+yjd.atm.prototype.getRect = function(context) {
+    return new yjd.atm.rect(this, context);
+};
+
+yjd.atm.prototype.setPosBase = function(base) {
+    this.posBase = yjd.atm.check(base);
+};
+/**
+ * set and get position value
+ * @param {string} name 'top', 'bottom', 'left' ,or 'right' 
+ * @param {number} v value when set new value
+ * @return {number} value of position.
+ */
+yjd.atm.prototype.pos = function(name, v) {
+    if(v===null || v==='') {
+        this.elm.style[name] = null;
+    } else if(v!==undefined) {
+        if(this.posBase) {
+            var curBase;
+            if(this.getStyle('position')==='absolute') curBase = this.parent();
+            var offset = new yjd.atm.rect(this.posBase, curBase);
+            v += offset[name]();
+        }
+        this.elm.style[name] = v+'px';
+    }
+    return this.elm.style[name];
+};
+//  top
+yjd.atm.prototype.top = function(v) {
+    if(v!==undefined) this.pos('bottom', null);
+    return this.pos('top', v);
+};
+//  bottom
+yjd.atm.prototype.bottom = function(v) {
+    if(v!==undefined) this.pos('top', null);
+    return this.pos('bottom', v);
+};
+//  left
+yjd.atm.prototype.left = function(v) {
+    if(v!==undefined) this.pos('right', null);
+    return this.pos('left', v);
+};
+//  right
+yjd.atm.prototype.right = function(v) {
+    if(v!==undefined) this.pos('left', null);
+    return this.pos('right', v);
+};
+
+
 //  get relation
 yjd.atm.prototype.parent = function(){
-    return new yjd.atm(this.parentElement);
+    return new yjd.atm(this.elm.parentElement);
 };
 
 yjd.atm.prototype.child = function(n){
@@ -381,8 +383,9 @@ yjd.atm.prototype.after = function(atm) {
 
 //  remove
 yjd.atm.prototype.remove = function() {
+    if(!this.elm.parentElement) return this;
     this.elm.parentElement.removeChild(this.elm);
-    this.elm = null;
+    return this;
 };
 
 //  replace
@@ -422,7 +425,7 @@ yjd.atm.prototype.switchClone = function(b_clone) {
 yjd.atm.prototype.scriptData = function(type, b_json) {
     if(b_json===undefined) b_json = true;
     var q = 'script[type="'+type+'"]';
-    var elm = this.querySelector(q);
+    var elm = this.elm.querySelector(q);
     if(!elm) return null;
     var data = elm.innerText;
     if(b_json) {
@@ -443,14 +446,17 @@ yjd.atm.prototype.scriptData = function(type, b_json) {
  * @param {object} o_this object to be set to 'this' in callback
  * @param {function} func callback. arguments are ( {Event} event, {yjd.atm} atm object.
  */
-yjd.atm.prototype.bind = function(s_event, o_this, func) {
-    if( func===undefined ) {
-        func = o_this;
-        o_this = null;
+yjd.atm.prototype.bind = function(s_event, o_this, func, capture) {
+    if( typeof o_this==='function' ) {
+        //  arguments are event, func, capture
+        this.elm.addEventListener(s_event, o_this, func);
+        return [this.elm, s_event, o_this, func ];
     }
     if(!o_this) o_this = this;
+    if(!capture) capture=false;
     var atm = this;
-    this.elm.addEventListener(s_event, onevent, false);
+    this.elm.addEventListener(s_event, onevent, capture);
+    return [this.elm, s_event, onevent, capture ];
 
     function onevent(event){
         var args = [ event, atm ];
@@ -460,11 +466,10 @@ yjd.atm.prototype.bind = function(s_event, o_this, func) {
 
 /**
  * unbind event listner.
- * @param {string} s_event event type.
- * @param {function} func callback. arguments are ( {Event} event, {yjd.atm} atm object.
+ * @param {object} handler handler returned by bind
  */
-yjd.atm.prototype.unbind = function(s_event, func) {
-    this.elm.addEventListener(s_event, func, false);
+yjd.atm.unbind = function(handler) {
+    handler[0].elm.removeEventListener(handler[1], handler[2], handler[3]);
 };
 
 /**
@@ -480,14 +485,21 @@ yjd.atm.prototype.toggle = function(s_class) {
 
 /**
  * loop and do function in atms.
+ * it can also be called like atms.each(func);
+ * in this case, atms object is set to be 'this'.
+ * @param {any} o_this object to be set to 'this' in callback.
  * @param {function} func callback to called in loop.
- * an argument is yjd.atom object. this keeps outer value.
+ * an argument is yjd.atom object.
  * if its return false, exit loop.
  */
-yjd.atms.prototype.each = function(func) {
+yjd.atms.prototype.each = function(o_this, func) {
+    if(func===undefined) {
+        func = o_this;
+        o_this = this;
+    }
     for(var i=0; i<this.elms.length; i++) {
         var atm = yjd.atm(this.elms[i]);
-        if(false===func.call(this,atm)) break;
+        if(false===func.call(o_this,atm)) break;
     }
     return this;
 };
@@ -502,137 +514,126 @@ yjd.atms.prototype.item = function(n) {
     return false;
 };
 
-/**
- * encode object to string of form
- * @param {object} obj
- * @return {string}
+//  scroll to an Element
+yjd.atm.scrollTo = function (elm, container) {
+    if(container===undefined) container = window;
+    var rect = elm.getBoundingClientRect();
+    var x = rect.left + container.pageXOffset + (rect.width - container.innerWidth)/2;
+    var y = rect.top + container.pageYOffset + (rect.height - container.innerHeight)/2;
+    container.scrollTo(x, y);
+};
+
+/** get string of style.
+ * @param {object} style object of style info
+ * @return {string} style sring
  */
-yjd.atm.encodeToFormStr = function(obj) {
-    var str = '';
-    for(var prop in obj ) {
-        str += ((str!=='')? '&': '') +
-                encodeURIComponent(prop) +
-                '=' + encodeURIComponent( obj[prop] );
+yjd.atm.getStyleText = function (obj) {
+    var s_style = '';
+    for(var prop in obj) {
+        if(typeof obj[prop] ==='string' || typeof obj[prop] ==='number')
+            s_style += prop+':'+obj[prop]+';';
     }
-    return str.replace( /%20/g, '+' );
+    return s_style;
+};
+
+yjd.atm.hyphen2camel = function(str) {
+    return str.replace(/\-([a-z])/g, function(matched, p1){
+        return p1.toUpperCase();
+    });
+};
+
+/** get object of style.
+ * @param {string} style string of style info
+ * @return {object} style object
+ */
+yjd.atm.getStyleObj = function(str) {
+    var obj = {};
+    var rules = str.split(';');
+    for(var i in rules) {
+        if(rules[i].match(/^\s*([\w-]+)\s*:\s*(.+)$/)) {
+            obj[RegExp.$1] = RegExp.$2.trim;
+        }
+    }
+    return obj;
+};
+
+
+/**
+ * escape css special charactors
+ * @to-do is it needed?
+ */
+yjd.atm.cssEscape = function(str) {
+    return str;
+//    return str.replace(/([\.\:\(\)\{\}\[\]\\])/g, function(c){
+//        return '\\'+c;
+//    });
 };
 
 /**
- * Ajax
- * @param {object|string}　options options or URL string.
- * @param {object} o_this object to set 'this' of callbacks. default is options.
+ * rectangle
  */
-yjd.ajax = function(options, o_this) {
-    if(typeof options==='string') options = { url: options };
-    options = yjd.extend({}, yjd.ajax.default, options);
-    if(!o_this) o_this=options;
-
-    var xhr = new XMLHttpRequest();
-    var promise = new Promise(ajaxPromise);
-    function ajaxPromise(resolve, reject){
-        xhr.timeout = options.timeout;
-        xhr.onreadystatechange = statechange;
-        function statechange() {
-            if(xhr.readyState===4) {
-                if(200<=xhr.status && xhr.status<300) {
-                    resolve(xhr);
-                }
-                if(window.location.protocol==='file:' && xhr.status===0) {
-                    xhr.status = 200;
-                    resolve(xhr);
-                }
-                reject(new Error(xhr.statusText));
-            }
+yjd.atm.rect = function(x,y,w,h) {
+    if(!(this instanceof yjd.atm.rect)) {
+        return new yjd.atm.rect(x,y,w,h);
+    }
+    if(typeof x==='object') {
+        var atm = yjd.atm.check(x);
+        var rect = atm.elm.getBoundingClientRect();
+        this.x = rect.left;
+        this.y = rect.top;
+        this.w = rect.width;
+        this.h = rect.height;
+        if(typeof y==='object') {
+            var context = new yjd.atm.rect(y);
+            this.context = context;
         }
-        xhr.open(options.method, options.url, options.async, options.username, options.password);
-        xhr.setRequestHeader('content-type', options.contentType);
-        for(var key in options.headers) {
-            xhr.setRequestHeader(key, options.headers[key]);
-        }
-        if(typeof options.data ==='object' && options.processData) {
-            options.data = yjd.atm.encodeToFormStr(options.data);
-        }
-        if(options.beforeSend) {
-            if(false===options.beforeSend.call(options, xhr)) {
-                reject(new Error("stoped by beforeSend"));
-            }
-        }
-        var rep = xhr.send(options.data);
-    }
-
-    var result = {
-        result:     null,
-        done:   [], fail:   [], always: []  //  functions
-    };
-    if(options.success) result.done.push(options.success);
-    if(options.error) result.fail.push(options.error);
-    if(options.complete) result.always.push(options.complete);
-
-    promise.then( promise_then, promise_error);
-    function promise_then(){
-        result.result = true;
-        result.arguments = [ xhr.responseText, xhr.status, xhr ];
-        for(var i in result.done) result.done[i].apply(o_this, result.arguments);
-        for(i in result.always) result.always[i].call(o_this, xhr, xhr.status);
-    }
-    function promise_error(err){
-        result.result = false;
-        result.arguments = [ xhr, xhr.status, err ];
-        for(var i in result.fail) result.fail[i].apply(o_this, result.arguments);
-        for(i in result.always) result.always[i].call(o_this, xhr, xhr.status);
-    }
-    promise.done = promise_done;
-    promise.fail = promise_fail;
-    promise.always = promise_always;
-    return promise;
-    
-    function promise_done(callback) {
-        if(result.result===true) callback.apply(o_this, result.arguments);
-        else result.done.push(callback);
-        return promise;
-    }
-    function promise_fail(callback) {
-        if(result.result===true) callback.apply(o_this, result.arguments);
-        else result.fail.push(callback);
-        return promise;
-    }
-    function promise_always(callback) {
-        if(result.result!==null) callback.call(o_this, xhr, xhr.status);
-        else result.always.push(callback);
-        return promise;
+    } else {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
     }
 };
-
-//  default option values of ajax
-yjd.ajax.default = {
-        method: 'GET',  //  GET, POST, PUT, DELETE
-        url:    '',     //  URL
-        async:  true,  //  asyncronus
-        username:   '', //  user
-        password:   '', //  password
-        contentType:    'application/x-www-form-urlencoded; charset=UTF-8',    //  content-type
-        headers:    {},     //  headers
-        data:   null,     //  {string|object}
-        processData:    true,   //  proc to convert form string
-        timeout:    0,  //  timeout msec
-        beforeSend :    null,
-        success:    null,
-        error:  null,
-        complete:   null,   //  function(xhr, status)
-};
-
-/**
- * overwrite default options.
- * @param {object|string} options options. if string assumed key, value.
- * @param {any} value value if options is string.
- */
-yjd.ajax.setDefault = function(options, value) {
-    if(typeof options==='string') {
-        var key = options;
-        options = {};
-        options[key] = value;
+yjd.atm.rect.prototype.top = function(v) {
+    if(typeof v==='number') {
+        this.y = v;
     }
-    yjd.extend(yjd.ajax.default, options);
+    v = this.y;
+    if(this.context) v -= this.context.top();
+    return v;
+};
+yjd.atm.rect.prototype.bottom = function(v) {
+    if(typeof v==='number') {
+        this.y = v-this.h+1;
+    }
+    v = this.y+this.h-1;
+    if(this.context) v = this.context.bottom() - v;
+    return v;
+};
+yjd.atm.rect.prototype.left = function(v) {
+    if(typeof v==='number') {
+        this.x = v;
+    }
+    v = this.x;
+    if(this.context) v -= this.context.left();
+    return v;
+};
+yjd.atm.rect.prototype.right = function(v) {
+    if(typeof v==='number') {
+        this.x = v+1-this.w;
+    }
+    v =  this.x+this.w-1;
+    if(this.context) v = this.context.right() - v;
+    return v;
+};
+yjd.atm.rect.shift = function(x,y) {
+    if(x instanceof yjd.atm.rect) {
+        y = -x.y;
+        x = -x.x;
+    }
+    this.x += x;
+    this.y += y;
+    return this;
 };
 
 //  add event listener for this lib.

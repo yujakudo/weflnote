@@ -14,6 +14,7 @@
 }
 
 .yjd-wdg {
+	z-index: 1000;
 	margin: 0 0 0 0;
 	padding: 0 0 0 0; 
 	background-color: var(--yjd-wdg-base-color);
@@ -22,10 +23,8 @@
 	border-bottom: var(--yjd-wdg-thick) solid var(--yjd-wdg-darkside);
 	border-right: var(--yjd-wdg-thick) solid var(--yjd-wdg-darkside);
 	color: var(--yjd-wdg-text);
-	text-shadow: 0 0 2px var(--yjd-wdg-text-shadow);
+	text-shadow: 0 0 5px var(--yjd-wdg-text-shadow);
 	font-family: var(--yjd-wdg-font-family);
 	font-size: var(--yjd-wdg-font-size);
 	line-height: var(--yjd-wdg-line-height);
 }
-
-

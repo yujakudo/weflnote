@@ -1,28 +1,9 @@
 /**
  * @copyright  2017 yujakudo
  * @license    MIT License
- * @fileoverview class extend string.
+ * @fileoverview extend string and functions for locale.
  * @since  2017.04.17  initial coding.
  */
-
-/**
- * constructor
- * @param {string} str string
- */
-yjd.str = function(str) {
-	if(!(this instanceof yjd.str)) return new yjd.str(str);
-	this.str = str;
-};
-
-/** alias */
-var __ = yjd.str;
-
-/**
- * toString.
- */
-yjd.str.prototype.toString = function() {
-	return yjd.str.get(this.str);
-};
 
 /**
  * fill wild cards.
@@ -32,8 +13,8 @@ yjd.str.prototype.toString = function() {
  * @param {object|string} obj strings to replace, or an object containing those.
  * @return replaced string
  */
-yjd.str.prototype.fill = function(obj) {
-    var str = yjd.str.get(this.str);
+String.prototype.fill = function(obj) {
+    var str = this.toString();
     if(typeof obj === 'string' || typeof obj === 'number') {
         if(arguments.length==1) {
 			if(str.match('%%')) str = str.replace('%%', obj);
@@ -51,6 +32,11 @@ yjd.str.prototype.fill = function(obj) {
     }
     return str;
 };
+
+/**
+ * name space of string library
+ */
+yjd.str = {};
 
 /**
  * locale code
@@ -97,6 +83,9 @@ yjd.str.get = function(id, locale) {
 		return false;
 	}
 };
+
+/** alias */
+var __ = yjd.str.get;
 
 /**
  * set options.

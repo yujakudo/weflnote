@@ -12,16 +12,16 @@ module.exports = function(grunt){
 		],
 		thirdRelative:	[
 			'3rd/ckeditor/styles.js',
+			'3rd/ckeditor/contents.css',
 			'3rd/ckeditor/skins/moono-lisa/**',
 			'3rd/ckeditor/lang/**',
-			'3rd/ckeditor/plugins/scayt/**',
-			'3rd/ckeditor/plugins/wsc/**',
-			'3rd/ckeditor/plugins/copyformatting/**',
+			'3rd/ckeditor/plugins/**',
 		],
 		thirdConf:	[
 			'src/ckeditor/config.js',
 		],
 		srcYjd:	[
+			'src/js/yjd/base.js',
 			'src/js/yjd/str.js',
 			'src/js/yjd/atm.js',
 			'src/js/yjd/loader.js',
@@ -31,6 +31,7 @@ module.exports = function(grunt){
 		srcJs:	[
 			'src/js/app.js',
 			'src/js/book.js',
+			'src/js/sectionMenu.js',
 			'src/js/main.js'
 		],
 		distJs:	[
@@ -80,7 +81,8 @@ module.exports = function(grunt){
 			'apps.js' : {
 				options: {
 					stripBanners: true,
-					banner: "var yjd ={};\r\n\r\n",
+//					banner: "var yjd ={};\r\n\r\n",
+					sourceMap:	true
 				},
 				dest: 'tmp/<%= pkg.name %>.js',
 				src: [	files.srcYjd, files.srcJs	]
@@ -88,6 +90,7 @@ module.exports = function(grunt){
 			'yjdwdg.css' : {
 				options: {
 					stripBanners: true,
+					sourceMap:	true
 				},
 				dest: 'tmp/yjdwdg.css',
 				src: [	files.wdgCss	]
@@ -103,6 +106,7 @@ module.exports = function(grunt){
 			'apps.css': {
 				options: {
 					outputStyle:	'expanded',
+					sourceMap:		true
 				},
 				files: {
 					'tmp/<%= pkg.name %>.css':	'src/css/<%= pkg.name %>.scss'
@@ -111,6 +115,7 @@ module.exports = function(grunt){
 			'apps.min.css': {
 				options: {
 					outputStyle:	'compressed',
+					sourceMap:		true
 				},
 				files: {
 					'tmp/<%= pkg.name %>.min.css':	'src/css/<%= pkg.name %>.scss'
@@ -122,7 +127,7 @@ module.exports = function(grunt){
 			'scripts.html':	{
 				options: {
 					query:	'i',
-					script: 'var yjd={}, WN={};',
+					script: '',
 					replace:	{
 						'^3rd\/':	'js/',
 						'^tmp\/(.*\.css)$': function(str){
@@ -140,13 +145,14 @@ module.exports = function(grunt){
 				options: {
 					query:	false,
 					tag:	'<meta http-equiv="Cache-Control" content="no-cache"/>',
-					script: 'var yjd={}, WN={};',
+					script: '',
 					replace:	{
 						'^3rd\/':	'js/',
 						'^tmp\/':	'../tmp/',
 						'^src\/':	'../src/',
 					},
 				},
+//				src:	[ files.thirdCss, files.distCss, files.thirdJs, 'tmp/<%= pkg.name %>.js' ],
 				src:	[ files.thirdCss, files.distCss, files.thirdJs, files.srcYjd, files.srcJs ],
 				dest:	'tmp/scripts.dev.html'
 			},
@@ -236,6 +242,7 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.task.loadTasks('grunttasks');
+	grunt.loadNpmTasks('grunt-devtools');
 
 	grunt.registerTask('default', ['clean', 'all', 'watch']);
 	grunt.registerTask('all', grunt.config.get('makeWatch').allTargets);
