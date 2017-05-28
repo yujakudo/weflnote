@@ -1,13 +1,14 @@
 module.exports = function(grunt){
+	var yjdlib = '../jsyjdlib/lib/yjd';
 	var files = {
 		thirdCss: [
-			'3rd/jquery-ui/jquery-ui.min.css',
-			'3rd/gridstack/gridstack.min.css',
+			// '3rd/jquery-ui/jquery-ui.min.css',
+			// '3rd/gridstack/gridstack.min.css',
 		],
 		thirdJs:	[
-			'3rd/jquery/jquery.min.js',
-			'3rd/jquery-ui/jquery-ui.min.js',
-			'3rd/lodash/lodash.min.js',
+			// '3rd/jquery/jquery.min.js',
+			// '3rd/jquery-ui/jquery-ui.min.js',
+			// '3rd/lodash/lodash.min.js',
 			'3rd/ckeditor/ckeditor.js',
 		],
 		thirdRelative:	[
@@ -17,38 +18,56 @@ module.exports = function(grunt){
 			'3rd/ckeditor/lang/**',
 			'3rd/ckeditor/plugins/**',
 		],
+		thirdFonts: [
+			'3rd/font-awesome/fonts/fontawesome-webfont.eot',
+			'3rd/font-awesome/fonts/fontawesome-webfont.ttf',
+			'3rd/font-awesome/fonts/fontawesome-webfont.woff',
+			'3rd/font-awesome/fonts/fontawesome-webfont.woff2',
+		],
 		thirdConf:	[
 			'src/ckeditor/config.js',
 		],
 		srcYjd:	[
-			'src/js/yjd/base.js',
-			'src/js/yjd/str.js',
-			'src/js/yjd/atm.js',
-			'src/js/yjd/loader.js',
-			'src/js/yjd/wdg/wdg.js',
-			'src/js/yjd/wdg/menu.js',
+			yjdlib + '/base.js',
+			yjdlib + '/str.js',
+			yjdlib + '/ajax.js',
+			yjdlib + '/atm.js',
+			yjdlib + '/loader.js',
+			yjdlib + '/wdg/wdg.js',
+			yjdlib + '/wdg/menu.js',
+			yjdlib + '/wdg/statusbar.js',
 		],
 		srcJs:	[
 			'src/js/app.js',
 			'src/js/book.js',
+			'src/js/appMenus.js',
 			'src/js/sectionMenu.js',
+			'src/js/editor/editor.js',
+			'src/js/editor/textEditor.js',
 			'src/js/main.js'
 		],
 		distJs:	[
 			'tmp/weflnote.min.js'
 		],
 		wdgCss:	[
-			'src/js/yjd/wdg/theme.css',
-			'src/js/yjd/wdg/wdg.css',
-			'src/js/yjd/wdg/menu.css',
+			yjdlib + '/wdg/theme.css',
+			yjdlib + '/wdg/wdg.css',
+			yjdlib + '/wdg/menu.css',
+			yjdlib + '/wdg/statusbar.css',
+		],
+		devCss:	[
+			'dev/css/yjdwdg.css',
+			'dev/css/weflnote.css'
 		],
 		distCss:	[
-			'tmp/yjdwdg.css',
-			'tmp/weflnote.min.css'
+			'dist/css/weflnote.min.css'
 		],
 		content:	[
+			'src/content/envelope.html',
+			'src/content/content2.html',
 			'src/content/content.html',
 			'src/content/content.css',
+			'src/content/content.js',
 		],
 		partHtml:	[
 			'src/app-nav.html',
@@ -72,7 +91,8 @@ module.exports = function(grunt){
 		loadLib: load,
 		jshint:	{
 			options: {
-				laxbreak:	false,
+				laxbreak:	true,
+				sub:		true,
 				esversion: 5
 			},
 			files:	[	'src/**/*.js', 'grunttasks/*.js'	]
@@ -89,10 +109,10 @@ module.exports = function(grunt){
 			},
 			'yjdwdg.css' : {
 				options: {
-					stripBanners: true,
+					stripBanners: false,
 					sourceMap:	true
 				},
-				dest: 'tmp/yjdwdg.css',
+				dest: 'dev/css/yjdwdg.css',
 				src: [	files.wdgCss	]
 			},
 		},
@@ -109,7 +129,7 @@ module.exports = function(grunt){
 					sourceMap:		true
 				},
 				files: {
-					'tmp/<%= pkg.name %>.css':	'src/css/<%= pkg.name %>.scss'
+					'dev/css/<%= pkg.name %>.css':	'src/css/<%= pkg.name %>.scss'
 				}
 			},
 			'apps.min.css': {
@@ -118,7 +138,7 @@ module.exports = function(grunt){
 					sourceMap:		true
 				},
 				files: {
-					'tmp/<%= pkg.name %>.min.css':	'src/css/<%= pkg.name %>.scss'
+					'dist/css/<%= pkg.name %>.min.css':	'src/css/<%= pkg.name %>.scss'
 				}
 			},
 		},
@@ -148,12 +168,14 @@ module.exports = function(grunt){
 					script: '',
 					replace:	{
 						'^3rd\/':	'js/',
+						'^..\/':	'../../',
 						'^tmp\/':	'../tmp/',
 						'^src\/':	'../src/',
+						'^dev\/':	'./',
 					},
 				},
 //				src:	[ files.thirdCss, files.distCss, files.thirdJs, 'tmp/<%= pkg.name %>.js' ],
-				src:	[ files.thirdCss, files.distCss, files.thirdJs, files.srcYjd, files.srcJs ],
+				src:	[ files.thirdCss, files.devCss, files.thirdJs, files.srcYjd, files.srcJs ],
 				dest:	'tmp/scripts.dev.html'
 			},
 		},
@@ -199,6 +221,12 @@ module.exports = function(grunt){
 						],
 						dest:	'dev/js/'
 					},
+					{	expand:	true, cwd: '3rd/font-awesome/fonts/',
+						src:	[
+							files.get('thirdFonts', /^3rd\/font\-awesome\/fonts\//, ''),
+						],
+						dest:	'dev/css/fonts'
+					},
 				],
 			},
 			dev:	{
@@ -241,7 +269,7 @@ module.exports = function(grunt){
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.task.loadTasks('grunttasks');
+	grunt.task.loadTasks('../jsyjdlib/tasks');
 	grunt.loadNpmTasks('grunt-devtools');
 
 	grunt.registerTask('default', ['clean', 'all', 'watch']);

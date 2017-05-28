@@ -1,3 +1,14 @@
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('./fonts/fontawesome-webfont.eot?v=4.7.0');
+  src: url('./fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'),
+  url('./fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'),
+  url('./fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'),
+  url('./fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
     /*   base   */
     --base-color:    #fff;
@@ -17,18 +28,9 @@
     /*  grid: ;*/
     --grid-border-color:     #888;
 
-    /*  nav    */
-    --nav-base-color:    #448;
-    --nav-hover-color:   #66b;
-    --nav-base-light:    #559;
-    --nav-base-dark:     #336;
-    --nav-font-active-color: #eef;
-    --nav-font-inactive-color: #88c;
-
-    --nav-min-width: 6rem;
     --nav-height:    22px;
-
-    --status-height:  21px;
+    --footer-height: 25px;
+    --footer-min-height: 6px;
 }
 
 /*  basics */
@@ -72,4 +74,9 @@ html,body {
 
 .hidden {
     display: none;
+}
+
+.icon {
+	font-family: 'FontAwesome';
+    font-size: 2.4em;
 }

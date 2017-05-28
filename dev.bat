@@ -5,5 +5,6 @@ if "%1"=="chrome" goto END
 
 explorer .
 code .
+code ..\jsyjdlib
 
 :END

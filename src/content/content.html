@@ -1,46 +1,17 @@
 <div class="book">
     <script type="text/x-weflnote-book">{
         "template":   {
-			"css":		"./content.css",
-			"editable":	".wn-html",
-			"tabTemplate": "<li></li>",
-			"editModeSwitch": "li.edit-mode-switch",
-			"pageTag":	"article.page",
-			"page": {
-				"page": [
-					"<article class=\"page\"><section class=\"html\">",
-					"<h2>New page</h2></section></article>"
-				]
-			},
-			"section": {
-				"normal": [
-					"<section class=\"html-section wn-html\">",
-					"<h3>New section</h3></section>"
-				],
-				"widgets": [
-					"<section class=\"widgets-section\"><div class=\"wn-html\"><h3>New section</h3></div>",
-					"<div class=\"grid-stack\">",
-					"<div class=\"grid-stack-item\" data-gs-x=\"0\" data-gs-y=\"0\" data-gs-width=\"3\" data-gs-height=\"2\">",
-					"<div class=\"grid-stack-item-content\"><h4>Widget</h4></div>",
-					"</div></div></section>"
-				]
-			}
-		},
-        "options": {
-			"envelope": "./envelope.html"
+			"envelope": "./envelope.html",
+			"resource": [
+				{ "url": "./content.css", "type": "text/css" },
+				{ "url": "./content.js", "type": "text/javascript" }
+			]
 		}
     }</script>
 	<style></style>
-	<div class="book-tabs">
-		<ul class="controls">
-			<li class="edit-mode-switch">edit</li>
-		</ul>
-		<ul class="tabs-list">
-		</ul>
-		<ul class="tabs-buttons when-edit">
-			<li class="cmd-page-add">add</li>
-		</ul>
-	</div>
+	<nav class="book-tabs">
+		<ul class="tabs-list"></ul>
+	</nav>
 	<div class="book-body">
 		<div class="header wn-html">
 			<h1>Title</h1>
