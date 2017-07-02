@@ -17,22 +17,92 @@ WN.App = function() {
 	this.atms = {
 		container: yjd.atm('#app-container'),
 		header: yjd.atm('#app-header'),
-		footer: yjd.atm('#app-footer')
+		footer: yjd.atm('#app-footer'),
+		widgets: yjd.atm('#app-widgets')
 	};
 	this.menus = new WN.AppMenus(this);
+	this.messagePool = {};
 };
 
 /**
- * set status message
+ * Replace Environment variables.
+ * @param {string} str String to resolve.
+ * @return {string} Resolved string.
+ */
+WN.App.prototype.resolveEnvVars = function(str) {
+	str = str.replace(/\${([^}]+)}/g, function(match, p1){
+		return WN.config.paths[p1];
+	});
+	return str;
+};
+
+/**
+ * Get book to handle.
+ * @param {WN.Book|string|null} [book] Identifier for book. ex. Instance, string of ID
+ * 	If null or omitted, returns current book.
+ * @return {WN.Book} Book instance.
+ */
+WN.App.prototype.getBook = function(book) {
+	if(book instanceof WN.Book) return book;
+	if(typeof book==='string') return this.books[book];
+	if(!book) return this.curBook;
+};
+
+/**
+ * Resolve variables and to be absolute URL.
+ * @param {string} url URL to resolve.
+ * @param {string} [baseUrl] Base URL.
+ * @return {string} Resolved URL.
+ */
+WN.App.prototype.resolveUrl = function(url, baseUrl) {
+	url = this.resolveEnvVars(url);
+	return yjd.getAbsoluteUrl(url, baseUrl);
+};
+
+/**
+ * Show status message
+ * @param {string} msg message.
  */
 WN.App.prototype.statusMsg = function(msg){
 	this.menus.msg(msg);
 };
 
 /**
+ * Pool a message of a seriese.
+ * @param {string} key key of the seriese. 
+ */
+WN.App.prototype.poolMsg = function(key, msg){
+	if(!this.messagePool[key]) this.messagePool[key] = [];
+	this.messagePool[key].push(msg);
+};
+
+/**
+ * Show pooled messages on a dialog box.
+ * @param {string} key key of the seriese. 
+ * @param {yjd.wdg.Button.structure[]|string[]} [buttons] Array of button data or just a label string.
+ */
+WN.App.prototype.showPooledMsg = function(key, buttons){
+	if(!buttons) buttons = [__('_Ok')];
+	var str = '<ul>';
+	for(var i in this.messagePool[key]) {
+		str += '<li>'+this.messagePool[key][i]+'</li>';
+	}
+	str += '</ul>';
+	var dialog = new yjd.wdg.Dialog({
+		title:	__('Failed to load...'),
+		body: str,
+		buttons: buttons
+	}, {
+		autoDestroy:	true,
+	});
+	dialog.appendTo(this.atms.widgets);
+	delete this.messagePool[key];
+};
+
+/**
  * Show or hide footer
  * @param {boolean} b_show Show footer if true, otherwise hide.
- * @param {boolean} b_temporal temporaly show or hide.
+ * @param {boolean} [b_temporal=false] temporaly show or hide.
  */
 WN.App.prototype.showFooter = function(b_show, b_temporal) {
 	if(!this.curBook || this.curBook.isEditMode) b_show = true;
@@ -59,12 +129,12 @@ WN.App.prototype.showFooter = function(b_show, b_temporal) {
 WN.App.prototype.open = function(url) {
 	var app = this;
 	var bookInfo = {};
-	bookInfo.url = yjd.getAbsoluteUrl(url);
+	bookInfo.url = this.resolveUrl(url);
 	bookInfo.name = yjd.urlInfo(bookInfo.url).filename;
 	app.statusMsg(__('loading "%%"...').fill(bookInfo.name));
-	yjd.ajax(bookInfo.url)
+	yjd.ajax({url: bookInfo.url, useThenCatch: true}, this)
 	.then(function(xhr){
-		return new Promise(function(resolve, reject){
+		return new yjd.Promise(this, function(resolve, reject){
 			//  complete HTML
 			if(xhr.responseText.match('<!DOCTYPE')) {
 				bookInfo.html = xhr.responseText;
@@ -81,7 +151,7 @@ WN.App.prototype.open = function(url) {
 			}
 			//  load envelope
 			bookInfo.env = {};
-			bookInfo.env.url = yjd.getAbsoluteUrl(data.template.envelope, bookInfo.url);
+			bookInfo.env.url = app.resolveUrl(data.template.envelope, bookInfo.url);
 			bookInfo.env.name = yjd.urlInfo(bookInfo.env.url).filename;
 			yjd.ajax(bookInfo.env.url, this)
 			.done(function(text, status, xhr){
@@ -117,40 +187,24 @@ WN.App.prototype.open = function(url) {
 			entry.replaceWith(bookAtm);
 		}
 		app.books[book_id] = new WN.Book(app, bookAtm, frameDoc, bookInfo.url, book_id);
-		app.switchBook(book_id);
 	}).catch(function(err){
-		app.statusMsg(err.message);
 		console.log(err);
+		this.poolMsg('app', err.message);
+		this.showPooledMsg('app');
 	});
-};
-
-/**
- * Get book to handle.
- * @param {WN.Book|string|null} [book] Identifier for book. ex. Instance, string of ID
- * 	If null or omitted, returns current book.
- * @return {WN.Book} Book instance.
- */
-WN.App.prototype.getBook = function(book) {
-	if(book instanceof WN.Book) return book;
-	if(typeof book==='string') return this.books[book];
-	if(!book) return this.curBook;
 };
 
 /**
  * Close book
  * @param {WN.Book|string|null} [book] Identifier for book.
- * @todo
  */
 WN.App.prototype.close = function(book) {
 	book = this.getBook(book);
 	if(!book) return;
-	//	book.close
-	function closed(bookId) {
-		delete this.books[bookId];
-		this.books = this.books.filter(function(book){return book? true: false; });
-		yjd.atm('#'+bookId).remove();
-		this.switchBook(-1);
-	}
+	delete this.books[book.id];
+//	this.books = this.books.filter(function(book){return book? true: false; });
+	yjd.atm('#'+book.id).remove();
+	this.switchBook(-1);
 };
 
 /**
@@ -159,7 +213,10 @@ WN.App.prototype.close = function(book) {
  */
 WN.App.prototype.switchBook = function(book) {
 	if(typeof book==='number') {
-		book = this.book[0];	//	@todo history
+		var keys = Object.keys(this.books);
+		//	@todo history
+		if(0<=book && book<keys.length) book = this.book[keys[book]];
+		else book = null;
 	} else {
 		book = this.getBook(book);
 	}
@@ -188,7 +245,7 @@ WN.App.prototype.statusChange = function(book) {
 };
 
 /**
- * Set title of book.
+ * Set window title to the book's.
  * @param {WN.Book|string|null} [book] Identifier for book.
  * @param {string} title Title
  */
@@ -203,8 +260,8 @@ WN.App.prototype.setTitle = function(book, title) {
  * set window title
  */
 WN.App.prototype.setWindowTitle = function(title) {
-	if(!title) title = 'weflnote';
-	yjd.atm('title').text(title+' - weflnote');
+	if(!title) title = WN.config.title;
+	yjd.atm('title').text(title+' - '+WN.config.title);
 };
 
 /**
@@ -224,6 +281,7 @@ WN.App.prototype.editMode = function(book, b_edit) {
 		for(prop in this.atms) this.atms[prop].addClass('app-edit-mode');
 	} else {
 		for(prop in this.atms) this.atms[prop].removeClass('app-edit-mode');
+		this.showFooter(false);
 	}
 };
 

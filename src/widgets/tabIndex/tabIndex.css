@@ -1,0 +1,50 @@
+/*	Tab
+ */
+nav.wn-widget-tab-index>ul {
+    zoom: 1;		/*	clearfix	*/
+	width: 100%;
+	margin: 0 0 0 0;
+	padding: 0 0 0 0;
+	line-height: 1.2rem;
+}
+nav.wn-widget-tab-index>ul:after {	/*	clearfix	*/
+    clear: both;
+    content: "";
+    display: block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+}
+nav.wn-widget-tab-index * {
+	padding: 0; 
+}
+nav.wn-widget-tab-index ul {
+	margin: 0 0 0 0;
+	padding: 0 0 0 0; 
+	list-style-type:none;
+}
+nav.wn-widget-tab-index li {
+	margin: 0 0 0 0;
+	padding: 0.2rem 0.8rem;
+	float:left;
+	display: block;
+	text-align: left;
+	min-width: 4rem;			
+	cursor: default;
+	background-color: var(--book-back-color-dark);
+	border-left: 1px solid var(--back-color);
+	border-bottom: 1px solid var(--back-color);
+	color: var(--tab-text-color);
+}
+nav.wn-widget-tab-index li:first-child {
+	border-left: none;
+}
+nav.wn-widget-tab-index li.selected {
+	background-color: var(--book-back-color);
+	border-bottom-color: var(--book-back-color);
+}
+nav.wn-widget-tab-index li:hover {
+	background-color: var(--book-back-color-light);
+	border-bottom-color: var(--book-back-color-light);
+}

@@ -31,57 +31,6 @@ body {
 	}
 }
 
-/*	Tab
- */
-div.book-tabs {
-    zoom: 1;		/*	clearfix	*/
-	width: 100%;
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
-	line-height: 1.2rem;
-}
-div.book-tabs:after {	/*	clearfix	*/
-    clear: both;
-    content: "";
-    display: block;
-    font-size: 0;
-    height: 0;
-    line-height: 0;
-    visibility: hidden;
-}
-div.book-tabs * {
-	padding: 0; 
-}
-div.book-tabs ul {
-	margin: 0 0 0 0;
-	padding: 0 0 0 0; 
-	list-style-type:none;
-}
-div.book-tabs li {
-	margin: 0 0 0 0;
-	padding: 0.2rem 0.8rem;
-	float:left;
-	display: block;
-	text-align: left;
-	min-width: 4rem;			
-	cursor: default;
-	background-color: var(--book-back-color-dark);
-	border-left: 1px solid var(--back-color);
-	border-bottom: 1px solid var(--back-color);
-	color: var(--tab-text-color);
-}
-div.book-tabs li:first-child {
-	border-left: none;
-}
-div.book-tabs li.selected {
-	background-color: var(--book-back-color);
-	border-bottom-color: var(--book-back-color);
-}
-div.book-tabs li:hover {
-	background-color: var(--book-back-color-light);
-	border-bottom-color: var(--book-back-color-light);
-}
-
 .book-body {
 	padding: 1em;
 	background-color: var(--book-back-color);

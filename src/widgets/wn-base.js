@@ -1,4 +1,5 @@
 var curPageElm = null;
+//	selectPage
 function selectPage(elm) {
 	var pages = document.querySelectorAll(Note.template.page.tag);
 	if(elm instanceof HTMLElement) elm = elm.closest(Note.template.page.tag);
@@ -12,15 +13,6 @@ function selectPage(elm) {
 	curPageElm.classList.add('wn-book-selected');
 	return true;
 }
-
-document.querySelector(Note.template.index.container)
-.addEventListener('click', function(event){
-	var elm = event.target;
-	while(elm.tagName!=='LI' && elm.tagName!=='UL') elm = elm.parentNode;
-	if(elm.tagName!=='LI') return;
-	var id = elm.getAttribute('data-id');
-	if( selectPage(id) ) window.scrollTo(0,0);
-}, false);
 
 document.getElementsByTagName('a')
 .addEventListener('click', function(event){

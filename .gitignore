@@ -37,7 +37,10 @@ jspm_packages
 .node_repl_history
 
 # env
-3rd
-tmp
-dev
+.vscode
+3rd/*
+tmp/*
+dev/*
+dist/*
 dev.bat
+!.gitkeep

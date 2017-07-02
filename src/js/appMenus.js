@@ -62,11 +62,12 @@ WN.AppMenus.prototype.bind = function() {
  */
 WN.AppMenus.prototype.statusChange = function(book) {
 	if(!book.ready) {
-		this.disable('mainEditMode', true);
-		this.disable('statusEditMode', true);
 		this.disable('mainEdit', true);
+		this.disable('statusEditMode', true);
 		return;
 	}
+	this.disable('mainEdit', false);
+	this.disable('statusEditMode', false);
 	if(book.isEditMode) {
 		this.disable('mainAddPage', false);
 		this.disable('mainAddSection', false);
@@ -123,6 +124,7 @@ WN.AppMenus.infoMenus = {
 				submenu: [
 					{
 						index:		'mainEditMode',
+						icon: '<span class="icon">&#xf040;<!-- fa-pencil --></span>',
 						label:		__('_Edit mode'),
 						callback:	WN.App.prototype.editMode,
 					},{	label:	'-'	},{

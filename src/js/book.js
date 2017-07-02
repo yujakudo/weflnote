@@ -22,6 +22,7 @@ WN.Book = function(app, atm, document, url, id) {
 	this.id  = id;			//	ID for App.
 	this.title = 'untitled';	//	title.
 	this.lastPageId = 0;	//	Last added page ID
+	this.autoSetId = 0;		//ID to auto set
 	this.isEditMode = false;
 	this.editEvents = [];
 	var data = this.atm.scriptData('text/x-weflnote-book');
@@ -34,19 +35,25 @@ WN.Book = function(app, atm, document, url, id) {
 	data = yjd.extend({}, this.def_data, data);
 	this.template = data.template;
 	this.options = data.options;
-	this.pagesContainer = this.app;
+	this.pagesContainer = this.atm;
 	if(this.template.page.container) 	this.pagesContainer = yjd.atm(this.template.page.container, this.app);
 	this.indexesContainer = yjd.atm(this.template.index.container, this.atm);
 	this.loadResources(ready);
 	//
 	function ready(result) {
 		this.ready = result;
+		this.app.statusChange(this);
 		if(result) {
 			this.initIndex();
 			this.app.statusMsg(__('"%%" is ready!').fill(this.title));
 			if(this.options.defaultEditMode) this.App.editMode(this);
+			this.app.switchBoook(this.id);
 		} else {
-			this.app.statusChange(this);
+			this.app.showPooledMsg(this.id, [
+				{ label: __('_Retry'), callback: WN.App.prototype.open, this: this.app, args: [this.url]},
+				{ label: __('_Close') }
+			]);
+			this.app.close(this);
 		}
 	}
 };
@@ -125,29 +132,101 @@ WN.Book.prototype.loadResources = function(callback) {
 	var noteData = {template: this.template, options: this.options };
 	var scripts = "var Note = " + JSON.stringify(noteData) + "\r\n";
 	newField({ type: 'javascript', data: scripts, url: 'book-data'});
-	var rsrcs = this.template.resource;
-	if(!rsrcs) {
+	var rsrcs = this.template.resources;
+	if(!rsrcs) {	//	No need to load.
 		yjd.timeout(this, callback, 0, true);
 		return;
 	}
 
 	if(!(rsrcs instanceof Array)) rsrcs = [rsrcs];
 	var loader = new yjd.Loader(this.url);
-	for(var idx in rsrcs) {
-		var res = rsrcs[idx];
-		loader.enque(res.url, res.type);
-	}
-	loader.startLoading(this, finishLoading, true);
-	//
-	function finishLoading(result, que) {
-		for(var i in que) {
-			var item = que[i];
-			if(item.result) newField(item);
-			else this.app.statusMsg(item.message);
+	var theBook = this;
+	//	preload
+	new yjd.Promise(this, function(resolve, reject){
+		for(var idx in rsrcs) {
+			var res = rsrcs[idx];
+			res.type = yjd.typeInfo(res.type).synonym;
+			res.url = this.app.resolveUrl(res.url, this.url, null, idx);
+			if(res.type==='json') {
+				loader.enque(res.url, res.type, null, idx);
+			}
+		}
+		if(loader.quedNum===0) resolve();
+		loader.startLoading(this, finishPreload, false);
+		function finishPreload(result, que) {
+			for(var i in que) {
+				var item = que[i];
+				var res = rsrcs[item.user];
+				if(item.result) {
+					res.json = yjd.jsonDecode(item.data);
+					if(!res.json) {
+						this.app.poolMsg(this.id, __('Fail to parse JSON on "%%".').fill(item.url));
+						result = false;
+					}
+				} else {
+					this.app.poolMsg(this.id, item.message);
+				}
+			}
+			if(!result) reject();
+			resolve();
+		}
+	//	load
+	}).then(function(){
+		loader.clear();
+		for(var idx in rsrcs) {
+			var res = rsrcs[idx];
+			if(res.json) {
+				if(!(res.json.resources instanceof Array)) res.json.resources = [res.json.resources];
+				for(var j in res.json.resources) {
+					var subres = res.json.resources[j];
+					if(subres.url) loader.enque(subres.url, subres.type, null, [idx, j]);
+				}
+			} else {
+				loader.enque(res.url, res.type, null, [idx]);
+			}
+		}
+		return new yjd.Promise(this, function(resolve, reject){
+			loader.startLoading(this, finishLoading, true);
+			//
+			function finishLoading(result, que) {
+				for(var i in que) {
+					var item = que[i];
+					var idxs = item.user;
+					var res = rsrcs[idxs[0]];
+					if(item.result) {
+						if(res.json) {
+							res.json.resources[idxs[1]].data = item.data;
+						} else {
+							res.data = item.data;
+						}
+					} else {
+						this.app.poolMsg(this.id, item.message + ':' + item.url);
+					}
+					if(item.result) newField(item);
+				}
+				if(!result) reject();
+				resolve();
+			}
+		});
+	//	Success
+	}).then(function(){
+		for(var idx in rsrcs) {
+			var res = rsrcs[idx];
+			if(res.json) {
+				for(var j in res.json.resources) {
+					var subres = res.json.resources[j];
+					newField(subres);
+				}
+			} else {
+				newField(res);
+			}
 		}
 		//	@todo show alart dialog.
 		callback.call(this, result);
-	}
+	}).catch(function(){
+		callback.call(this, false);
+	});
+	//
 	function newField(item) {
 		var type = yjd.typeInfo(item.type).synonym;
 		var tag = null;
@@ -168,26 +247,6 @@ WN.Book.prototype.loadResources = function(callback) {
 };
 
 /**
- * Load and apply.
- * @param {string} tag Tag name to apply loaded resource.
- * @param {string} url Url of resource. Relative URL from template HTML is also avairable.
- */
-WN.Book.prototype.load = function(tag, url) {
-	var name = yjd.urlInfo(url).filename;
-	url = yjd.getAbsoluteUrl(url, this.url);
-	yjd.ajax(url, this)
-	.done(function(data, status, xhr) {
-		var css = yjd.atm('<'+tag+'></'+tag+'>').text(data);
-		var header = yjd.atm('header', this.doc);
-		header.append(css);
-		book.app.statusMsg(__('"%%" are applied.').fill(name));
-	}).fail(function(xhr, status, err){
-		book.app.statusMsg(__('Fail to load "%%". : ').fill(name) + err.message);
-	});
-};
-
-
-/**
  * initiarize page index
  */
 WN.Book.prototype.initIndex = function() {
@@ -195,9 +254,14 @@ WN.Book.prototype.initIndex = function() {
 	this.indexesContainer.html('');
 	var i = 0;
 	this.eachPage(function(page){
-		var strId = page.id();
-		var id = parseInt(strId, 16);
-		if(!isNaN(id) && this.nextPageId<id) this.lastPageId = id;
+		var id = page.id();
+		if(id==='') {
+			id = this.autoId('page');
+			page.id(id);		
+		} else {
+			var num = id.substr(5).parseInt(id, 16);
+			if(!isNaN(num) && this.autoSetId<num) this.autoSetId = num;
+		}
 		var indexAtm = this.setIndex(page, i++);
 		this.indexesContainer.append(indexAtm);
 	});
@@ -214,19 +278,37 @@ WN.Book.prototype.initIndex = function() {
  */
 WN.Book.prototype.setIndex = function(page, label, atm) {
 	var id = page.id();
-	if(id==='') return;
-	if(atm===undefined) atm = yjd.atm(this.template.indexTemplate);
+	if(atm===undefined) {
+		atm = yjd.atm('[data-id="'+id+'"]', this.indexesContainer);
+		if(!atm || !atm.elm) {
+			atm = yjd.atm(this.template.index.template.normal).data('id', id);
+		}
+	}
 	if(typeof label!=='string') {
-		lable = (label!==undefined)? 'Page-'+(label+1): '';
+		lable = (label!==undefined)? 'Page-'+(label+1).toString(10): '';
 		var hl = page.findOne('h1,h2,h3,h4,h5');
 		if(hl && hl.elm) {
 			var text = hl.text(); 
 			if(text) lable = text; 
 		}
 	}
-	atm.text(lable).attr('title', lable).data('id', id);
+	atm.text(lable).attr('title', lable);
 	return atm;
 };
+
+/**
+ * Generate ID string.
+ * @param {string} prefix Prefix of ID
+ * @return {string} ID.
+ */
+WN.Book.prototype.autoId = function(prefix) {
+	var id;
+	do {
+		id = prefix+'-'+(++this.autoSetId).toString(16);
+	} while(this.doc.getElementById(id));
+	return id;
+};
+
 
 /**
  * Set title of book.
@@ -306,7 +388,7 @@ WN.Book.prototype.editMode = function(b_edit) {
 		this.atm.removeClass('edit-mode');
 		this.sectionMenu.destroy();
 		this.sectionMenu = null;
-		this.setTitles();
+//		this.setTitles();
 	}
 	return b_edit;
 	//

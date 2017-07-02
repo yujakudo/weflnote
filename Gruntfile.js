@@ -36,6 +36,8 @@ module.exports = function(grunt){
 			yjdlib + '/wdg/wdg.js',
 			yjdlib + '/wdg/menu.js',
 			yjdlib + '/wdg/statusbar.js',
+			yjdlib + '/wdg/button.js',
+			yjdlib + '/wdg/dialog.js',
 		],
 		srcJs:	[
 			'src/js/app.js',
@@ -54,6 +56,7 @@ module.exports = function(grunt){
 			yjdlib + '/wdg/wdg.css',
 			yjdlib + '/wdg/menu.css',
 			yjdlib + '/wdg/statusbar.css',
+			yjdlib + '/wdg/dialog.css',
 		],
 		devCss:	[
 			'dev/css/yjdwdg.css',
@@ -63,16 +66,16 @@ module.exports = function(grunt){
 			'dist/css/weflnote.min.css'
 		],
 		content:	[
-			'src/content/envelope.html',
-			'src/content/content2.html',
-			'src/content/content.html',
-			'src/content/content.css',
-			'src/content/content.js',
+			'src/contents/envelope.html',
+			'src/contents/content2.html',
+			'src/contents/content.html',
+			'src/contents/content.css',
+			'src/contents/content.js',
 		],
-		partHtml:	[
+/*		partHtml:	[
 			'src/app-nav.html',
 		],
-		get: function(name, pattern, s_replace) {
+*/		get: function(name, pattern, s_replace) {
 			if(!pattern)	return this[name];
 			return this[name].map(function(fn){
 				return fn.replace(pattern, s_replace);
@@ -95,7 +98,7 @@ module.exports = function(grunt){
 				sub:		true,
 				esversion: 5
 			},
-			files:	[	'src/**/*.js', 'grunttasks/*.js'	]
+			files:	[	'src/**/*.js', 'grunttasks/*.js', '../jsyjdlib/src/**/*.js'	]
 		},
 		concat: {
 			'apps.js' : {
@@ -165,7 +168,7 @@ module.exports = function(grunt){
 				options: {
 					query:	false,
 					tag:	'<meta http-equiv="Cache-Control" content="no-cache"/>',
-					script: '',
+					script: 'var ENV = "dev"; var FirstOpenFile = "../src/contents/content.html";',
 					replace:	{
 						'^3rd\/':	'js/',
 						'^..\/':	'../../',
@@ -229,7 +232,7 @@ module.exports = function(grunt){
 					},
 				],
 			},
-			dev:	{
+/*			dev:	{
 				expand:	true,
 				cwd:	'src/',
 				src:	[
@@ -238,7 +241,7 @@ module.exports = function(grunt){
 				],
 				dest:	'dev/'
 			},
-		},
+*/		},
 		clean: [ 'tmp/*', 'tmp/*/*', 'dist/*', 'dev/*'	],
 		makeWatch:	{
 			options: {

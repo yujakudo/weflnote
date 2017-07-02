@@ -1,0 +1,8 @@
+{
+    "name": "tabIndex",
+    "resources": [
+        { "type": "text/html", "name": "tabIndex",  "data": "<nav class=\"wn-widget-tab-index\"><ul class=\"tabs-list\"></ul></nav>"},
+        { "type": "text/css", "url": "./tabIndex.css"  },
+        { "type": "text/javascript", "url": "./tabIndex.js" }
+    ]
+}

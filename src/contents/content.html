@@ -2,16 +2,14 @@
     <script type="text/x-weflnote-book">{
         "template":   {
 			"envelope": "./envelope.html",
-			"resource": [
+			"resources": [
+				{ "url": "${widgetsRoot}/wn-base.js", "type": "text/javascript" },
 				{ "url": "./content.css", "type": "text/css" },
-				{ "url": "./content.js", "type": "text/javascript" }
+				{ "url": "${widgetsRoot}/tabIndex/tabIndex.json", "type": "text/json" }
 			]
 		}
     }</script>
-	<style></style>
-	<nav class="book-tabs">
-		<ul class="tabs-list"></ul>
-	</nav>
+	<script type="text/x-weflnote-widget" data-name="tabIndex"></script>
 	<div class="book-body">
 		<div class="header wn-html">
 			<h1>Title</h1>
