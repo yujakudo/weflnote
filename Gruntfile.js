@@ -29,6 +29,7 @@ module.exports = function(grunt){
 		],
 		srcYjd:	[
 			yjdlib + '/base.js',
+			yjdlib + '/sckey.js',
 			yjdlib + '/str.js',
 			yjdlib + '/ajax.js',
 			yjdlib + '/atm.js',

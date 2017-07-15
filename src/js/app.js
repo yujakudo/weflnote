@@ -20,6 +20,7 @@ WN.App = function() {
 		footer: yjd.atm('#app-footer'),
 		widgets: yjd.atm('#app-widgets')
 	};
+	this.Sckey = new yjd.Sckey();
 	this.menus = new WN.AppMenus(this);
 	this.messagePool = {};
 };

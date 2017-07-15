@@ -19,7 +19,8 @@ WN.AppMenus = function(app) {
 			enable: true,
 			delay: 20,
 			callback: this.app.showFooter
-		}
+		},
+		Sckey:	app.Sckey
     });
 	var editorMenu = [];
 	for(var idx in WN.Editor.register.list) {
